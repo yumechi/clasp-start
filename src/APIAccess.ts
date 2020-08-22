@@ -1,14 +1,4 @@
-export type Dict = { [key: string]: any }
-
-type GeneralDate = Date | GoogleAppsScript.Base.Date;
-function japaneseDateFormat(date: GeneralDate, isFull = false): string {
-    /**
-     * Change Date to Japanese normaly string format.
-     * For example, "2020-06-30"
-     */
-    const formatString = isFull ? "yyyy-MM-dd HH:mm:ss" : "yyyy-MM-dd";
-    return Utilities.formatDate(date, "JST", formatString);
-}
+import { Dict, japaneseDateFormat } from "./util";
 
 export function qiitaTrend(options: Dict): Dict {
     const baseUrl: string = "https://qiita.com/api/v2/items";
@@ -33,7 +23,6 @@ export function qiitaTrend(options: Dict): Dict {
         });
         return dataset;
     })()
-    console.log(result);
     return result;
 }
 
