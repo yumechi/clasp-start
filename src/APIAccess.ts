@@ -3,40 +3,17 @@ import { Dict, japaneseDateFormat } from "./util";
 export function qiitaTrend(options: Dict): Dict {
     const baseUrl: string = "https://qiita.com/api/v2/items";
     const query: Dict = createQuery(options);
-    const requestUrl: string = baseUrl + "?" + (() => {
-        var requestQuery = []
-        Object.keys(query).forEach(key => {
-            const value: any = query[key];
-            requestQuery.push(`${key}=${value}`);
-        });
-        return requestQuery.join("&").replace(":", "%3A");
-    })();
+    const requestUrl: string = baseUrl + "?" + Object.entries(query).map(([key, value]) => `${key}=${value}`).join("&").replace(":", "%3A");
     console.log(requestUrl);
     const response: GoogleAppsScript.URL_Fetch.HTTPResponse = UrlFetchApp.fetch(requestUrl);
     const responseJson: Dict = JSON.parse(response.getContentText("UTF-8"));
-
-    const result = (() => {
-        var dataset = []
-        Object.keys(responseJson).forEach(index => {
-            const value = responseJson[index];
-            dataset.push([`${value["title"]}`, `${value["url"]}`]);
-        });
-        return dataset;
-    })()
-    return result;
+    return Object.values(responseJson).map(value => [`${value["title"]}`, `${value["url"]}`]);
 }
 
 function createQuery(options: Dict): Dict {
     const page: string = String(options["page"] ?? 1);
     const perPage: string = String(options["per_page"] ?? 20);
-    const tags: string = encodeURIComponent(((): string => {
-        const _tags: [string] = options["tag"] ?? ["Python"]
-        for (let index = 0; index < _tags.length; index++) {
-            const element = _tags[index];
-            _tags[index] = `tag:${element}`;
-        }
-        return _tags.join(" ")
-    })());
+    const tags: string = encodeURIComponent(Object.values(options["tag"] ?? ["Python"]).map((value) => `tag:${value}`).join(" "));
     const stocks: string = encodeURIComponent("stocks:>" + String(options["stocks"] ?? 10));
     const created: string = encodeURIComponent("created:>" + japaneseDateFormat(options["created"] ??
         ((): GoogleAppsScript.Base.Date => {

@@ -20,7 +20,7 @@ function sendQiitaNotification() {
 }
 
 function createBody(data: Dict): string {
-    return data.map((v, _): Array<string> => v.join("\n")).join("\n");
+    return Object.values(data).map(value => value.join("\n")).join("\n");
 }
 
 function sendNotificationMailToMySelf(body: string): void {
